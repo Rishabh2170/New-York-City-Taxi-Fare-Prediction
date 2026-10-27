@@ -1,0 +1,13 @@
+# Large dataset
+/raw_data/train.csv
+
+# IDE settings
+.idea/
+
+# Python
+__pycache__/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
