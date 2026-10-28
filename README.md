@@ -8,8 +8,12 @@ Predicting taxi fares in New York City from pickup/dropoff coordinates, pickup t
 
 | Metric | Value |
 |---|---|
-| **Public/Private Score (RMSE)** | **3.25688** |
-| **Leaderboard Rank** | **~480 / ~1,500 participants** (top ~32%) |
+| **Best Score (RMSE)** | **3.25688** (XGBoost) |
+| **Leaderboard Position** | **~480 / ~1,500 participants** (top ~32%) |
+
+> Submissions were made after the competition deadline (late submissions), so the rank reflects where this score would fall on the leaderboard.
+
+---
 
 ---
 
@@ -75,7 +79,55 @@ The project is split into four notebooks that are meant to be run in order:
    - Other location-based features
 
 4. **Model Training & Submission** (`model_training_&_submission.ipynb`)
-   Trains and validates the regression model, then generates the predictions for `test.csv` and saves the file to `submission_file/`.
+   Trains XGBoost, Random Forest and Ridge models, validates them with a train/validation split using RMSE, tunes hyperparameters, then generates predictions for `test.csv` and saves the files to `submission_file/`.
+
+---
+
+## 🤖 Models & Results
+
+Three models were trained and compared. Each was validated with a train/validation split using **RMSE**, and its hyperparameters were tuned before submission.
+
+| Model | Kaggle Score (RMSE) |
+|---|---|
+| **XGBoost Regressor** | **3.25688** ✅ |
+| Random Forest Regressor | 3.36260 |
+| Ridge Regression | 5.15766 |
+
+**Final XGBoost configuration**
+
+```python
+XGBRegressor(
+    objective='reg:squarederror',
+    n_estimators=250,
+    max_depth=7,
+    learning_rate=0.1,
+    subsample=0.9,
+    colsample_bytree=0.7,
+    min_child_weight=7,
+    gamma=1,
+    random_state=42,
+    n_jobs=-1
+)
+```
+
+**Random Forest configuration**
+
+```python
+RandomForestRegressor(
+    n_estimators=500,
+    max_depth=10,
+    max_samples=0.8,
+    bootstrap=True,
+    min_samples_leaf=2,
+    min_samples_split=7,
+    random_state=42,
+    n_jobs=-1
+)
+```
+
+**Takeaways**
+- Tree-based models clearly beat the linear baseline: Ridge's RMSE (5.16) is far higher than XGBoost's (3.26), which shows that fares depend non-linearly on distance, location and time.
+- XGBoost edged out Random Forest, improving RMSE by about 0.11.
 
 ---
 
@@ -83,7 +135,7 @@ The project is split into four notebooks that are meant to be run in order:
 
 - **Language:** Python
 - **Environment:** Jupyter Notebook
-- **Libraries:** pandas, NumPy, Matplotlib / Seaborn, scikit-learn *(plus any boosting library you used, e.g. XGBoost / LightGBM)*
+- **Libraries:** pandas, NumPy, Matplotlib / Seaborn, scikit-learn, XGBoost
 
 ---
 
@@ -113,7 +165,8 @@ The final predictions are written to `submission_file/` and can be uploaded dire
 
 - Add more location features (distance to airports, landmarks, boroughs, neighbourhood clusters)
 - Use more training data and further tune hyperparameters
-- Try gradient boosting models or ensembles / stacking
+- Try LightGBM / CatBoost, and ensembling or stacking the best models
+- Use k-fold cross-validation and more systematic tuning (e.g. Optuna)
 - Add features such as rush-hour flags, weekends and holidays
 
 ---
